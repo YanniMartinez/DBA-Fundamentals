@@ -105,9 +105,170 @@ Es una herramienta de línea de comandos para administrar una instancia BD Oracl
 | Variable | Descripción |
 | --- | --- |
 | `ORACLE_SID` | Indica el nombre la da instancia de la BD a la que se quiere conectar |
-| `ORACLE_HOME` | Directorio donde se encuentra la instalación y ejecutables de la base de datos |
-| `LD_LIBRARY_PATH` | Lista de directorios donde se encuentran librerias del sistema |
+| `ORACLE_HOME` | Directorio donde se encuentra la instalación y ejecutables de la base de datos, es decir el directorio raíz. Primero se instala el software y despues la base de datos |
+| `LD_LIBRARY_PATH` | Es una variable de entorno, normalmnete Lista de directorios donde se encuentran librerias del sistema(Típicamente ) |
+
+## Personalización de SQL*Plus
+
+`sqlplus /nolog` es para acceder a la interfaz de sqlplus
+
+Corrección del comando `sudo yum install rlwrap` es `sudo dnf install wrap`, no es necesario usar el comando `sudo nano /etc/profile.d/oracle..`
+
+Se recomienda leer el previo de la práctica 7 en la carpeta `BD/p7`
 
 ### Ejercicio práctico 2:
 
 Se trata de un programa en shell, para homologar el conocimiento.
+
+### Ejercicio 01
+
+Al inicio va primero el interprete, en este caso bash e indicamos la ruta.
+
+Para una variable en bash usamos `$var1 $myvar`
+
+Si no indicamos que esté entre comillas dobles podemos recibir `rm -r /` estariamos perdiendo todo nuestro linux, entonces debemos decirlo.
+
+Para crear una función en shell script podemos poner la siguiente sintaxis:
+
+```
+function ayuda(){
+
+}
+```
+
+A pesar de que podamos enviar parametros, no se los enviaremos, los recopilaremos de la siguiente manera.
+
+
+```
+function ayuda(){
+  codigoError="${1}"
+  cat s-02-ayuda.sh
+  exit "${codigoError}"
+}
+```
+
+Con el comando `cat` lee el archivo y se muestra el contenido del archivo.
+Cuando un shell termina podemos mostrar el código de salida. Cuando un comando se ejecuta correctamente nos devolverá **0**. Para indicar un problema con el programa el comando `exit` nos permite saberlo.
+
+Para validar un valor usamos:
+```
+if [ -z "${archivoImagenes}" ]; then
+  echo "ERROR: El nombre del archivo de imágenes no fue especificado"
+  ayuda 100
+else
+fi
+```
+
+El `-z` nos ayuda a validar si el valor de la variable está vacia, le damos espacio y ponemos el nombre de la variable.
+Para terminar un `if` debemos poner un  **`fi`**.
+
+Para **imprimir un mensaje en consola** usamos el comando `echo`
+
+Cuando el archivo de imagenes no fue especificado o no existe, le indicamos que existió un error y le indicamos el código 100.
+
+```
+if [ -z "${archivoImagenes}" ]; then
+  echo "ERROR: El nombre del archivo de imágenes no fue especificado"
+  ayuda 100
+else
+fi
+```
+
+Podemos poner un if negado y usar `-f` nos ayuda a verificar si existe un archivo con ese nombre.
+
+```
+if [ -z "${archivoImagenes}" ]; then
+  echo "ERROR: El nombre del archivo de imágenes no fue especificado"
+  ayuda 100
+else
+  if ! [ -f "${archivoImagenes}"]; then
+    echo "ERROR: EL archivo ${archivoImagenes} no existe"
+    ayuda 101
+  fi
+fi
+```
+
+#### Validando 2do parametro
+
+```
+#parámetro2
+if ! [[ "${numImagenes}" =~ [0-9]+ && "${numImagenes}" -gt 0 &&
+  "${numImagenes}" -le 90]]; then
+    echo "ERROR: El archivo ${archivoImagenes} no existe"
+    ayuda 102
+  fi
+fi
+```
+
+La sintaxis con doble corchete nos permite validar expresiones regulares. Para indicar que se trata de una expresión regular. Le dice, evalua la siguiente condición booleana para la cadena. Con esto ya estamos validando que no esté vacio y validamos con `&&` diciendo que esté entre 0 y 90.
+
+#### Verificando 3 parametro
+
+Nos ayuda a extraer el nombre del directorio en la ruta. `if [ -n "${archivoZip}" ]; then``.
+
+Hay veces en las que necesitamos usar directorios o archivos temporales, para ello existe el directorio `tmp` donde almacena todo eso que es opcional.
+
+Haciendo limpieza:
+
+`rm -rf "${dirSalida}"/*.jpg`
+
+Siempre que queramos borrar algo hay que ser lo más especificos posible.
+
+Una manera facil de leer archivos y leer el valor de cada línea usamos
+
+```
+
+```
+
+La salida de este comando `echo "hola"` redirecciona a `>` el archivo o variable `${archivoImagenes}`
+
+La Versión contraria es entonces una entrada. `done < "${archivoImagenes}"` signfica que el `archivoImagenes` es la entrada del while.
+
+El comando para **obtener recurso de internet** es el comando `wget`, le podemos indicar el directorio de salida.
+
+Para **Validar si el comando anterior se ejecutó correctamente** usamos `status=$?`
+
+```
+count=1
+while read -r linea #El ciclo se va a detener cuando termine de leer
+do 
+  echo "Descargando Imagen ${linea}"
+  wget -q -P "${dirSalida}" "${linea}"
+  #Validando status
+  status=$?
+  if ! [ "${status}" -eq 0]; then 
+    #Completar
+  fi;
+
+  #Validar el número de imagenes
+  # Si ya se cuenta con el número de imagenes solicitadas
+  # Entonces salimos del ciclo
+  # Si ya se cuenta con el número de imagenes solicitadas => break;
+
+  count=$((coun+1))
+done < "${archivoImagenes}"
+```
+
+Hasta este punto ya generamos las imagenes.
+
+Para indicar que una variable es de entorno lo especificamos como `export`, Cuando un programa tiene un Export.
+
+
+`source` lo que hará es mostrar el valor de la variable de entorno.
+
+Con `chmod 6 ` indicamos los permisos en este caso el 6 hace referencia al estilo binario, por ejemplo `110` ese primero es para los permisos del usuario, recordemos que están listados como `rwd`
+
+| Flag | Significado |
+| --- | --- |
+|`gt`| Greater Then si es mayor que, entonces |
+|`le`| Less or Equal menor o igual |
+|`-n`| Si el valor del parametro tiene un valor entonces... Es el contrario del `-z`|
+|`-d`| Verifica si el directorio existe |
+|`-p`| Genera todos los archivos de jalón 
+|`rm`| Remueve |
+|`rf`| Fuerza la acción|
+|`-q`|  |
+|`-P`| En que directorio quieres guardar, o directorio de salida |
+|`-j`| Va a incluir a todos los archivos pero sin que tenga la estructura de directorios. Si no la especificamos puede generarnos directorios dentro del directorio especificado |
+|`rm -f`| Cuando ponemos ese con el f no nos manda una mensaje de error, si no existe pues que no pase nada |
+|`Z1`|Muestra el contenido del zip pero sin la ruta del contenido que puede tener su interior|
