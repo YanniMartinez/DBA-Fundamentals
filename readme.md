@@ -437,3 +437,8 @@ H. Hacer el mismo ejercicio del inciso anterior, pero ahora con el privilegio sy
 **Multitenant** Arquitectura para base de datos. A partir de la versión 21C por compatibilidad de containers.
 
 <div align="center"><img src="media/img/ejercicioC1/multitenant.png"></div>
+
+* Como ver los grupos de un usuario. `id nombre_usuario`
+
+<div align="center"><img src="media/img/ejercicioC1/grupoUsuarios.png"></div>
+
