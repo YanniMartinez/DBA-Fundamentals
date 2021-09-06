@@ -272,3 +272,92 @@ Con `chmod 6 ` indicamos los permisos en este caso el 6 hace referencia al estil
 |`-j`| Va a incluir a todos los archivos pero sin que tenga la estructura de directorios. Si no la especificamos puede generarnos directorios dentro del directorio especificado |
 |`rm -f`| Cuando ponemos ese con el f no nos manda una mensaje de error, si no existe pues que no pase nada |
 |`Z1`|Muestra el contenido del zip pero sin la ruta del contenido que puede tener su interior|
+
+### SQL Plus
+
+`nolog` significa que iniciará el sqlplus sin tener que iniciar sesión.
+
+`su -l oracle sqlplus / as sysdba`Al no poner ni el usuario ni pasword lo que ahace es logearse desde el SO.
+
+#### Usuarios:
+
+**Usuario administrador** Es el usuario con el que iniciamos nuestro sistema operativo con la interfaz gráfica.
+`yann(administrador) -> sudo`, `root-> Super usuario`, en el ejercicio 3 usamos `oracle(no admin)-> no sudo` es decir, el usuario Oracle no tendrá acceso al comando 
+
+Si nosotros agregamos un usuario al grupo `wheel`, con ello tendrá acceso de administrador.
+
+#### Cambio de usuario
+
+`su - oracle`, con ello podremos cambiar de usuario si conocemos el password. En un ambiente productivo sólo el DBA tiene el password de Oracle por medidas de seguridad.
+Si tenemos el password podemos autenticarnos mediante el comando `sql / as sysbda`
+
+#### Inicio de sistema en SQL plus
+
+| Comando | Acción |
+| --- | --- |
+|``||
+|`sqlplus /nolog`| Puede entrar a sqlplus sin tener que iniciar sesión.|
+|`sqlplus usuario/contraseña`| Es una manera de iniciar sesión en SqlPlus. Esto es una mala práctica al ponerlo porque queda en el historial de comandos y queda expuesta nuestra contraseña. (No se recomienda usar) |
+|`sqlplus usuario`| Es semejante al punto anterior pero despues nos preguntará el password pero será cifrado. |
+| `connect / as sysdba ó connect sys as sysdba` | Cuando omitimos el *as* significa que entraremos como un usuario ordinario. Cuando se especifica significa que se trata de un administrador. |
+|  |  |
+
+
+* **LTS** Significa Latest Time Support, es decir, es una versión que sea utilizada a largo plazo.
+
+<div align="center"><img src="media/img/release.png"></div>
+
+#### Cuentas de usuario a nivel de la base de datos
+
+Son usuarios que se inician cuando la base de datos se instala.
+
+| Usuario | Descripción |
+| --- | --- |
+| `sys` | Es el más importante porque tiene todos los privilegios. Cuenta con todos los privilegios asignados. Todas las tablas y vistas del diccionario de datos son almacenadas en el esquema SYS. Usuarios no modifican estas vistas y tablas, y tampoco debe crear nuevas. |
+| `system` | Se le asigna el rol DBA. Se emplea para crear tablas y vistas adicionales que muestran información de administración empleadas por herramientas y funcionalidades adicionales que ofrece la BD. De forma similar, no se debe emplear este esquema para crear nuevas tablas. Sirve como auxiliar a sys. Normalmente se usa para manejar todos los componentes extra que tengamos |
+| `sysbackup` | Facilita el manejo y administración de respaldos empleando SQL *Plus o RMAN (Recovery Manager). Es un administrador que se encarga de gestionar los respaldos que hay en la base de datos |
+| `sysdg` | Se encarga de realizar operaciones con funcionalidades de **“Data Guard”.** Data Guard ofrece la implementación de requerimientos como Alta disponibilidad, protección de datos, recuperación ante desastres, etc., a través de operaciones de creación, mantenimiento y monitoreo de BDs. |
+| `syskm` | Empleado para realizar y ejecutar funcionalidades asociadas con Cifrado de datos, generación de KeyStores, etc. Sirve para administrar cifrado de datos, se encarga de gestionar las llaves de cifrado. |
+| `sysrac` | Empleado para realizar operaciones de administración en ambientes clusterizados a través de Oracle RAC. Conexión entre nodos del clúster, etc. Es un usuario utilizado para ambientes de Cluster de bases de datos. |
+
+* Ejemplo de RAC
+<div align="center"><img src="media/img/RAC.png"></div>
+
+Permite consultas simultaneas mediante diversas instancias conectadas a una unica base de datos.
+
+Diccionario de datos, también es conocido como metadatos de la base de datos, las restricciones de los datos, si es nulo, si es no nulo. Es decir, todas las caracteristicas de nuestra base de datos se almacenan en el diccionario de datos.
+
+Un rol es agrupar un conjunto de privilegios.
+
+#### Privilegios de administración
+
+Un **privilegio de administración** es una etiqueta que podemos ponerle a un usuario y esto nos permite tener más acceso a más privilegios. Un **Privilegio** es un permiso muy particular.
+
+| Privilegios | Operaciones principales permitidas|
+| --- | --- |
+| `sysdba` | `` Permite realizar la mayoria de las operaciones incluida la posibilidad de ver datos de los usuarios, representa el privilegio con mayor poder.|
+| `sysoper` | `` No puede ver los datos de los usuarios |
+|`sysbackup`| La lista de operaciones que puede realizar este privilegio está definida a través del rol sysbackup |
+|`sysdg`| La lista de operaciones que puede realizar este privilegio está definida a través del rol sysdg |
+|`syskm`| La lista de operaciones que puede realizar este privilegio está definida a través del rol syskm |
+|`sysrac`| La lista de operaciones que puede realizar este privilegio está definida a través del rol sysrac |
+
+**Esquema** Es un conjunto de objetos que tienen un dueño. 
+En automático al crear un usuario se genera un esquema con el mismo nombre que el usuario, además al hacerlo también contiene sus objetos.
+Si queremos crear un esquema debemos crear un usuario. La relación es 1 a 1.
+
+<div align="center"><img src="media/img/esquema.png"></div>
+
+Un usuario puede tener dos o más roles
+
+**Nota:** Si usamos `sqlplus sys/system` marcará error, es por ello que siempre debe llevar el **as**, el comando quedaria como el siguiente. `sqlplus sys/system as sysdba`
+
+Cuando un usuario tiene 2 roles, tiene la posibilidad de autenticar de 2 formas. Una para cada rol.
+Cuando se autentica en su rol normal se asigna al esquema del mismo nombre que el usuario, por ejemplo "Juan" con el esquema "Juan", si le otorgan el poder "sys" y se autentica a él, entonces se le asigna el esquema "Sys".
+
+<div align="center"><img src="media/img/rolesUsuario.png"></div>
+
+* **sysoper** será asignado al esquema publico, que sea publico significa que todos tienen visibilidad y acceso a ello. Además todo lo contenido en el esquema se trata de objetos publicos.
+
+<div align="center"><img src="media/img/sysoper.png"></div>
+
