@@ -361,3 +361,79 @@ Cuando se autentica en su rol normal se asigna al esquema del mismo nombre que e
 
 <div align="center"><img src="media/img/sysoper.png"></div>
 
+#### Ejercicio de clase 1
+
+A. Conectarse a la BD como usuario sys empleando el privilegio de administración sysdba.
+
+Solución: `sqlplus sys as sysdba`
+
+<div align="center"><img src="media/img/ejercicioC1/1.png"></div>
+<div align="center"><img src="media/img/ejercicioC1/2oracle.png"></div>
+
+B. Crear un usuario empleando el nombre del alumno: `<nombre>` 01 con cuota ilimitada en el
+tablespace users.
+
+Solución: `create user jorge01 identified by jorge quota unlimited on user`. La quota ilimitada en los tablespace. Un tablespace nos permite controlar el espacio que puede usar el usuario. En este caso **unlimited** le da un espacio ilimitado a la tablespace.
+
+#### Vista usuarios
+Vista en donde están todos los usuarios `desc all_users`.
+`select username grom all_users where username like '%JORGE%';`.
+
+Eliminando usuario. `drop user jorge01 cascade;`
+
+C. Asignarle privilegio para crear sesión y crear tablas (ojo, estos no son privilegios administrativos).
+
+Asignando rol: `grant create table, create session to jorge01;`
+Debemos poner a mano todos y cada uno de los privilegios, si le otorgamos todos por flojera esto puede causar problemas por seguridad. Recordemos que nuestro objetivo es resguardar la base de datos.
+
+<div align="center"><img src="media/img/ejercicioC1/4.png"></div>
+
+D. Asignarle los siguientes privilegios administrativos: sysdba y sysoper.
+
+Solución: `grant sysdba, sysoper to jorge01;`
+
+<div align="center"><img src="media/img/ejercicioC1/5.png"></div>
+
+
+E. Conectarse como usuario `<nombre>` 01 sin hacer uso de los privilegios administrativos.
+
+Solución: `conect nombre_del_usuario`
+
+a. Revisar el nombre de usuario asignado.
+
+`show user` comprueba el nombre del usuario
+
+b. Revisar el nombre del esquema asignado. ¿Qué valor debería obtenerse?
+
+Solución: `select sys_context('USERNV','CURRENT_SCHEMA') as schema from dual`. El antecedente puede consultarse en el tema 9 de BD1.
+
+<div align="center"><img src="media/img/ejercicioC1/6.png"></div>
+
+c. Crear una tabla llamada test con un campo id numérico.
+
+Solución: `create table test(id number);`
+
+<div align="center"><img src="media/img/ejercicioC1/7.png"></div>
+
+d. Ejecutar select * from test para comprobar su existencia.
+
+Solución: `select * from test`
+
+<div align="center"><img src="media/img/ejercicioC1/8.png"></div>
+
+F. Salir de sesión
+
+Solución: `exit`
+<div align="center"><img src="media/img/ejercicioC1/9.png"></div>
+
+G. Conectarse ahora como usuario `<nombre>` 01 con el privilegio de administración sysdba
+a. ¿Quién debería ser el usuario conectado en la BD?
+
+b. ¿Cuál debería ser el nombre del esquema asociado al usuario?
+c. ¿Qué le sucedió a la tabla test?
+H. Hacer el mismo ejercicio del inciso anterior, pero ahora con el privilegio sysoper.
+
+
+**Multitenant** Arquitectura para base de datos. A partir de la versión 21C por compatibilidad de containers.
+
+<div align="center"><img src="media/img/ejercicioC1/multitenant.png"></div>
