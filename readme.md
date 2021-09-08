@@ -442,3 +442,68 @@ H. Hacer el mismo ejercicio del inciso anterior, pero ahora con el privilegio sy
 
 <div align="center"><img src="media/img/ejercicioC1/grupoUsuarios.png"></div>
 
+### Ejercicio clase 3
+
+#### Archivo de passwords
+
+Entrando a un usuario **Oracle** de bases de datos mediante otro usuario, SQLPlus sabe que debe entrar como archivo de datos porque el usuario no contiene los privilegios de administrador.
+
+<div align="center"><img src="media/img/ejercicioC1/archivoDePasswords.png"></div>
+
+Entrando mediante permisos:
+
+
+<div align="center"><img src="media/img/ejercicioC1/loginPermisos.png"></div>
+
+Entrando a sesión mediante un usuario no asignado.
+
+<div align="center"><img src="media/img/ejercicioC1/archivoNoExiste.png"></div>
+
+Si nos deja entrar, y el tipo de autenticación es mediante sistema operativo.
+
+**Nota:** Cuando ponemos `sysdba` en automático busca mediante el archivo de passwords.
+
+Login mediante archivo de passwords
+
+<div align="center"><img src="media/img/ejercicioC1/noExisteArchivoDatos.png"></div>
+
+Login mediante diccionario de datos:
+
+<div align="center"><img src="media/img/ejercicioC1/noExisteDiccionarioDatos.png"></div>
+
+### Visualizar usuarios con cuenta de administración
+
+V$ -> Significa que es una vista del SO dinámicas, es decir, que cambian con una alta frecuencia desde que la instancia se inicia, es dinámico porque los datos pueden estar modificandose, ya sea agregandose o eliminandose.
+
+* **levantando instancia** `sqlplus / as sysdba`
+
+<div align="center"><img src="media/img/ejercicioC1/levantandoInstancia.png"></div>
+
+Para consultar usuarios de esta vista podemos poner lo siguiente:
+
+<div align="center"><img src="media/img/ejercicioC1/levantandoInstancia.png"></div>
+
+#### Configurando salida de SQLPlus
+
+Para acomodar la vista podemos ponerlo de la siguiente manera `set linesize window`, lo que hace es poner la linea hasta el máximo de la ventana, ahora se ve ligeramente mejor.
+
+Sin embargo cada columna está usando 180 Caracteres, pero podemos corregirlo con: `col username format a20`, `col last_login a40`
+
+<div align="center"><img src="media/img/ejercicioC1/formatoSql.png"></div>
+
+| Vista | Acción |
+| --- | --- |
+| `v$pfile_users` | Vista dinámica de los usuarios con privilegio de administración|
+
+### Eliminando privilegios:
+
+Para eliminar un privilegios usamos: `revoke sysdba form jorge01`, lo que se hace es quitar el permiso **sysdba**, para comprobar podemos consultar de nuevo la vista, pero veremos que no aparece el *sysdba*.
+Esto no solo se ve reflejado en la vista, sino que se ve reflejado en el archivo de passwords (De hecho la vista consulta ese archivo).
+
+Si le quitamos Sysoper `revoke sysoper from jorge01` si le quitamos también este permiso notaremos que el usuario ya ni siquiera se mostrará en la vista.
+
+### Recuperando archivo de passwords
+
+Se utiliza para recuperar  un archivo de passwords en caso de que algo falle.
+
+`shutdown inmediate` con este comando detenemos una instancia.
