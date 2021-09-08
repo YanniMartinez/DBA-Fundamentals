@@ -507,3 +507,46 @@ Si le quitamos Sysoper `revoke sysoper from jorge01` si le quitamos también est
 Se utiliza para recuperar  un archivo de passwords en caso de que algo falle.
 
 `shutdown inmediate` con este comando detenemos una instancia.
+
+### Ejercicio de clase 4
+
+Simulación de pérdida del archivo de passwords.
+A. Detener la instancia en caso de estar levantada.
+B. Conectarse como usuario oracle en s.o.
+C. Mover el archivo de passwords a /home/oracle/backups para simular que este se ha perdido
+o se ha dañado.
+
+<div align="center"><img src="media/img/ejercicioClase4/moviendoArchivoPasswords.png"></div>
+
+D. ¿Qué pasará al no existir el archivo de passwords?
+i. ¿Levantará la instancia? `Sí`
+ii. ¿Quién podría autenticar? `Un usuario de administración (oracle) y mediante el Sistema Operativo`
+iii. ¿Qué contendría la vista v$pwfile_users ? 
+
+Aunque no exista el archivo de password si puede levantar la instancia.
+<div align="center"><img src="media/img/ejercicioClase4/vistaUsuarios.png"></div>
+
+iv. Asumiendo que el archivo se perdió, ¿Habrá forma de recuperarse de esta pérdida? En caso afirmativo, generar las acciones necesarias para reconstruir el archivo.
+
+Regenerando el archivo de passwords: (Este comando unicamente permite usuarios que se crean cuando la base se crean)
+
+```
+orapwd FILE="$ORACLE_HOME/dbs/orapwymmbda1" format=12.2 \
+SYS=password \
+SYSBACKUP=password
+```
+
+Recordemos que `\` significa que podemos seguir escribiendo una linea abajo. 
+`SYSBACKUP` significa el usuario.
+
+Despues de hacer esto podemos consultar la vista y ya no aparecerá vacia.
+
+`ltr` significa que los lista por fecha de modificación.
+
+### Actualizando contraseña
+
+Podemos hacerlo mediante Base de datos:
+
+`alter user sys identified by system01;`
+
+Y con eso ya podemos cambiar la contraseña a la que habiamos estado manejando.
