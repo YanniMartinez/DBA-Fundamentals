@@ -1,2 +1,3 @@
-#Ignorando tareas
-tareas
+#tareas
+tareas/*.txt
+tareas/*.pdf
