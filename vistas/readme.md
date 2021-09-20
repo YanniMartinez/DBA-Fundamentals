@@ -1,0 +1,5 @@
+# Vistas
+
+| Vista | Función |
+| --- | --- |
+|   |   |
