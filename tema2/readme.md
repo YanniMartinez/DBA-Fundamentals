@@ -175,4 +175,37 @@ podemos poner `echo ?` para ver el status del comando, si da **0** está correct
 Recordemos que la base de datos debe crear la instancia. La ventaja de crear el binario es que la instancia puede modificar ese archivo cuando nosotros hagamos cambios.
 
 Para crear el archivo SPFILE crear un script llamado `s-01-crea-spfile-ordinario.sql`.
+Recordemos que el OracleSID debe estár apuntando a la base 2. Los archivos de passwords y de parámetros son los unicos suficientes para manejar una instancia, con ello podemos crear e iniciar una instancia en modo `mount` solo crea las areas de memoria, pero todavia sin tener conocimiento de quna base nueva. Es decir, podemos crear una instancia nueva si almenos tenemos el archivo de passwords y de parametros.
+
+* `startup nomount` A partir del valor de OracleSID buscará el archivo de parametros, lo leerá e iniciará sólo con los parámetros indicados.
+
+* `create spfile from pfile;` Leerá el archivo de texto creado con nuestros 3 parametros y a partir de el iniciará el PFILE.
+
+La instrucción toma como entrada el archivo de parámetros de texto (PFILE) y genera un archivo binario
+Server Parameter File (SPFILE) en la ubicación por default. En caso que alguno o ambos archivos no se encuentren en las ubicaciones por default, se especifican las rutas absolutas:
+
+```
+create spfile='/u01/oracle/dbs/test_spfile.ora'
+from pfile='/u01/oracle/dbs/test_init.ora';
+```
+
+* Para verificar que se creó correctamente el SPFILE ejecutamos el siguiente comando: `!ls $ORACLE_HOME/dbs/spfile<iniciales>bda2.ora`
+
+<div align="center"><img src="media/9_ConectarComoSYSDBA.png"></div>
+
+### Creando BD desde Consola
+
+Para crear la BD desde consola podemos hacerlo mediante lo siguiente:
+
+<div align="center"><img src="media/10_CrearDesdeConsola.png"></div>
+
+<div align="center"><img src="media/11_OrganizacionDeGrupos.png"></div>
+
+Cuando se llene uno pasará al otro, si se llenan los 3 podrán regresar al primero, pero para ese punto ya deberiamos haber respaldado en los `TableSpaces`, porque de no ser así todos los cambios serían sobreescritos en el espacio que tiene asignado el redolog.
+
+El comando `Create database` no crea carpetas, para ello nosotros debemos construir la estructura.
+
+**Character set** Es el juego de caracteres global.
+
+**National character set** Tiene un fin más especifico, es para un juego diferente de caracteres para alguna columna o algo semejante como uso de caracteres especiales, acentos y demás.
 
