@@ -12,9 +12,9 @@ Significa que un archivo de la base de datos lo vamos a copiar o tendremos copia
 
 A nivel fisíco los datos se guardan en `DataFiles`, los archivos los vemos con terminación DBF.
 
-<div align="center"><img src="tema2/media/analizandoInstancia.png"></div>
+<div align="center"><img src="media/analizandoInstancia.png"></div>
 
-<div align="center"><img src="tema2/media/analizandoEjercicios.png"></div>
+
 
 Una vez que se define el tamaño de un bloque despues no se puede modificar.
 La base de datos nos permite crear un table espace y a ese podemos pasarle un data file con un espacio diferente al que le indicamos al crear el primero.
@@ -41,7 +41,7 @@ Los data files tienen su tamaño de bloque y el redolog también tiene su bloque
 
 La base nos recomienda 512 Bytes para evitar el desperdicio de almacenamiento en nuestro disco.
 
-<div align="center"><img src="tema2/media/redoLogs.png"></div>
+<div align="center"><img src="media/redoLogs.png"></div>
 
 Con la siguiente consulta podemos ver el tamaño que está siendo desperdiciado: `select name, value from v$sysstat where name = 'REDO WASTAGE';`
 
@@ -79,7 +79,7 @@ Se crea de la siguiente manera: `db_name=ymmbda2` en el interior del archivo y s
 
 Cuando se crea una base de datos debemos crear un `PFILE` con los parámetros necesarios para su funcionamiento.
 
-<div align="center"><img src="tema2/media/plantillaPFILE.png"></div>
+<div align="center"><img src="media/plantillaPFILE.png"></div>
 
 La plantilla PFILE sólo nos muestra un esquema con los parámetros necesarios para el inicio de la instancia.
 
@@ -95,7 +95,7 @@ Por default al crear una BD se crean **2 archivos de control** y **3 redolog**
 
 Un loop device es una especie de “pseudo-dispositivo” que permite a un archivo simple ser visto como un dispositivo de bloques (raw device), es decir, puede ser visto como un dispositivo de almacenamiento que puede contener un conjunto de archivos.
 
-<div align="center"><img src="tema2/media/5_PuntosDeMontaje.png"></div>
+<div align="center"><img src="media/5_PuntosDeMontaje.png"></div>
 
 * `dd if=/dev/zero of=disk2.img bs=100M count=10` Va a rellenar con ceros un archivo binario y va a estar llenando con bloques de 100MB hasta que llegue a 1GB.
 Se recomienda usar Shell para crear si no existe y eliminarlo si existe ya.
@@ -124,9 +124,55 @@ Como usuario root modificar el archivo `/etc/fstab` y poner las siguientes líne
 /unam-bda/disk2.img /u02 auto loop 0 0
 ```
 
-<div align="center"><img src="tema2/media/6_LoopDevices.png"></div>
+<div align="center"><img src="media/6_LoopDevices.png"></div>
 
 Para comprobar lo anterior podemos usar el siguiente comando: `df -h | grep u0` el comando `df -h` nos muestra todos los archivos, el `-h` muestra el valor en humano para que podamos entenderlo. Con el `|` toda la salida es filtrada y nos mostrará algo así: 
 
-<div align="center"><img src="tema2/media/7_MostrarLoops.png"></div>
+<div align="center"><img src="media/7_MostrarLoops.png"></div>
+
+### Script archivo de Passwords y parámetros.
+
+Crear un script `s-02-crea-pwd-param-oracle.sh` que realice las siguientes acciones:
+
+Este archivo de password debe estar en `$ORACLE_HOME/dbs` y este archivo de password debería llamarse `orapwymmbda2`
+
+Como crear un archivo y modificarlo:
+
+```
+archivoParam = "${ORACLE_HOME}"/dbs/initymmbda2.ora
+
+touch "${archivoParam}"
+
+echo "db_name=ymmbda2" >> "${archivoParam}" #Debe ser doble > para que no sobreescriba
+
+#Aquí iria el parámetro de memory_target
+```
+
+Ejemplo apuntando a otra ruta:
+
+<div align="center"><img src="media/8_Ejemplo.png"></div>
+
+```
+archivoParam = /tmp/prueba.txt
+
+touch "${archivoParam}"
+
+echo "db_name=ymmbda2" >> "${archivoParam}" 
+echo "control_files=(/u01/app/oracle/oradata/YMMBDA2/control01.ctl, /u02/app/oracle/oradata/YMMBDA2/control01.ctl)" >> ${archivoParam}
+
+```
+
+<div align="center"><img src="media/8_Ejemplo2.png"></div>
+
+Con el siguiente comando podemos validar que tanto el archivo de parametros y el de passwords fueron creados correctamente:
+
+`ls -l $ORACLE_HOME/dbs/*<oracle_sid>*`
+
+podemos poner `echo ?` para ver el status del comando, si da **0** está correcto.
+
+### Crear archivo de parámetros en modo binario SPFILE
+
+Recordemos que la base de datos debe crear la instancia. La ventaja de crear el binario es que la instancia puede modificar ese archivo cuando nosotros hagamos cambios.
+
+Para crear el archivo SPFILE crear un script llamado `s-01-crea-spfile-ordinario.sql`.
 
