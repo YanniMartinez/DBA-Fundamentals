@@ -259,3 +259,20 @@ Siempre hay que reiniciar la instancia.
 De aqui en adelante todo lo que falle debemos revisarlo en el alert log.
 
 Hasta aquí ya se creó pero aun no existe el diccionario de datos, por lo que aún no es funcional.
+
+### Creación de diccionarios de datos
+
+Sólo es necesario ejecutar los siguientes comandos para crear el diccionario de datos.
+
+<div align="center"><img src="media/17_CreandoDiccionarioDatos.png"></div>
+
+### Planteamiendo de un problema
+
+Cuando ocurre un error en nuestro sistema:
+
+<div align="center"><img src="media/18_Problema.png"></div>
+
+Se debe levantar con el Pfile, no con el binario porque está dañado, esto si puede pasar porque es posible levantar la instancia con el de texto.
+
+<div align="center"><img src="media/19_SolProblema.png"></div>
+
