@@ -209,3 +209,53 @@ El comando `Create database` no crea carpetas, para ello nosotros debemos constr
 
 **National character set** Tiene un fin más especifico, es para un juego diferente de caracteres para alguna columna o algo semejante como uso de caracteres especiales, acentos y demás.
 
+### TableSpace tmp
+
+La idea del directorio temporal es almacenar procesos temporales o auxiliares, es decir, de forma temporal necesitan guardar datos, esa es su idea, la comunicación mediante archivos,  permite el guardado de archivos que pueden ser necesarios para guardar tareas.
+
+En una Base de datos un tmp es para almacenar datos o algo de forma temporal, el claro ejemplo es cuando ocurre una consulta donde se requiere una cantidad de datos, eventualmente deberá usar datos de forma temporal para hacer ordenamientos y demás. O cuando la RAM no alcance es cuando SWAP (area de intercambio) en vez de usar la RAM guarda en disco, es decir, el sistema hace uso de este almacenamiento. Lo que hace es bajar información de la RAM a disco para liberar un poco de carga.
+
+Además este TableSpace nos sirve para hacer RollBack cuando sea necesario.
+
+<div align="center"><img src="media/12_TableSpace.png"></div>
+
+Un Esquema es una parte lógica porque permite organizar todos los objetos de un usuario. 
+
+El tablespace asocia objetos pero ahora con un archivo en un disco, es por ello, que se dice que se almacena en disco.
+Los objetos que se asocian con un table espace, son elementos que requieren de almacenamiento como tablas, indices.
+Un Tablespace lo podemos ver como espacio de almacenamiento para guardar datos.
+
+Hay que tener cuidado con verificar que ya existen directorios antes de ejecutar `create database` ya que este comando no crea directorios.
+
+### Script 02
+
+* `-r` significa que es recursivo, por ejemplo, si lo ponemos es posible que se modifiquen todas sus demás carpetas.
+* En este archivo se deberán tener `750` en cuanto a permisos.
+
+<div align="center"><img src="media/14_NoR.png"></div>
+
+Donde si podemos usar `-R` es en U02 y U03. La razón por la que no se usar en U01 es porque ahi tenemos archivos de la instancia de la base de datos y con ello podemos echar a perder la base de datos 3.
+
+<div align="center"><img src="media/16_AquiSiR.png"></div>
+
+### Script 03
+
+`whenever sqlerror exit` Esta instrucción permite detener un script en caso de encontrar un error.
+
+Es prácticamente hacer los mismos pasos que en el anterior CreateDataBase pero con nombres distintos, podemos basarnos en el ejemplo pero basandonos en datos propios.
+
+### En caso de errores
+
+Si tenemos errores en el PFILE lo que podemos hacer es abrirlo, modificarlo y poder tener uno más.
+
+Recordemos que el archivo binario no se puede modificar, es por ello que debemos crearlo en función del archivo de texto creado con anterioridad.
+
+`shutdown inmediate` permite dejar de correr la instancia.
+
+Siempre hay que reiniciar la instancia.
+
+`v$diag_info;` muestra todos los directorios donde hay bitacoras.
+
+De aqui en adelante todo lo que falle debemos revisarlo en el alert log.
+
+Hasta aquí ya se creó pero aun no existe el diccionario de datos, por lo que aún no es funcional.
