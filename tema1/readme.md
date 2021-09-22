@@ -1,12 +1,3 @@
-# Bases de Datos Avanzadas
-
-Requisitos:
-* Tener sólidos los conceptos de SQL.
-* DDM
-* DDL
-* Programación en Shell
-* Conocimiento en PLSQL
-
 ## Tema 1: Conceptos básicos en administración de Bases de Datos
 
 ### Ejercicio 1

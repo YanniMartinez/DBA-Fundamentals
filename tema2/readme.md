@@ -275,4 +275,3 @@ Cuando ocurre un error en nuestro sistema:
 Se debe levantar con el Pfile, no con el binario porque está dañado, esto si puede pasar porque es posible levantar la instancia con el de texto.
 
 <div align="center"><img src="media/19_SolProblema.png"></div>
-
