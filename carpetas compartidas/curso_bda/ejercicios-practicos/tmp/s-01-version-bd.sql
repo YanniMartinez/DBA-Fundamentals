@@ -10,7 +10,7 @@ whenever sqlerror exit rollback;
 -- para propósitos de pruebas y propósitos académicos se incluye el password
 -- no hacer esto en sistemas reales.
 Prompt conectando como usuario sys
-connect sys/system1 as sysdba
+connect sys/system1 as sysdba  --Conecta como usuario Sysdba
 
 declare
   v_count number;
@@ -21,7 +21,7 @@ begin
     execute immediate 'drop user '||v_username|| 'cascade';
   end if;
 end;
-/
+--/
 
 Prompt creando al usuario YANNI0104
 create user yanni0104 identified by yanni quota unlimited on users;

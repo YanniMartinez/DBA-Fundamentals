@@ -14,7 +14,9 @@ A nivel fisíco los datos se guardan en `DataFiles`, los archivos los vemos con 
 
 <div align="center"><img src="media/analizandoInstancia.png"></div>
 
+Los DataFiles están contenidos en `tablespaces`, cada Table Space tiene almenos 1 DataFile. Y cada Base de datos está conformada por Table Spaces.
 
+A cada DataFile se le puede asignar un Tamaño de bloque (normalmente si queremos que sea diferente a uno por default)
 
 Una vez que se define el tamaño de un bloque despues no se puede modificar.
 La base de datos nos permite crear un table espace y a ese podemos pasarle un data file con un espacio diferente al que le indicamos al crear el primero.
@@ -23,7 +25,7 @@ Con el comando `sudo blockdev --getbsz /dev/sda5` se refiere al tamaño del bloq
 
 Con el siguiente comando `df -h` podemos ver las particiones que tenemos.
 
-Para mostrar el tamaño del bloque usamos el comando `show parameter db block size`.
+Para mostrar el tamaño del bloque en nuestra Base de datos usamos el comando `show parameter db block size`.
 
 La carga un bloque de datos en caché, pensariamos que al hacer un update o demás se hace en disco, pero no es así, se guarda en el caché y puede tardar más tiempo en verse reflejado exactamente en el disco.
 
@@ -37,21 +39,33 @@ Si tenemos muy mala suerte y el sistema falla y aparte el redo log también fall
 
 Es por ello que buscamos multiplexarlos, una base de datos tipicas tiene **almenos 2 copias.**
 
+
 Los data files tienen su tamaño de bloque y el redolog también tiene su bloque, el datafile tiene un tamaño mayor. El tamaño de bloque del redolog es menor porque sólo se guardan los cambios del caché, es decir, guarda sólo lo necesario pero no todo el registro.
 
 La base nos recomienda 512 Bytes para evitar el desperdicio de almacenamiento en nuestro disco.
 
 <div align="center"><img src="media/redoLogs.png"></div>
 
-Con la siguiente consulta podemos ver el tamaño que está siendo desperdiciado: `select name, value from v$sysstat where name = 'REDO WASTAGE';`
+* Con la siguiente consulta podemos ver el tamaño que está siendo desperdiciado: `select name, value from v$sysstat where name = 'REDO WASTAGE';`
+
+* Para consultar el tamaño de bloque de un **redolog** usamos `select blocksize from v$log;`
 
 Lo que hace lenta a una BD es la cantidad de accesos a disco.
 
-**Sysaux** contiene datos adicionales de componentes a lo que vamos a instalar. Por defecto su tamaño debe ser de aproximadamente 400 MB. Su tamaño puede crecer.
+## TableSpaces
 
-**system** Es el table espace fundamental.
+Debemos indicar el tamaño que tomará cada uno.
+Cuando se crea una Base de datos se crean los siguientes:
 
-**users** Es el table espace para usuarios, para buenas prácticas todos los datos se deben guardar en un tablespace users.
+* **Sysaux** Como su nombre lo dice es un auxiliar. contiene datos adicionales de componentes a lo que vamos a instalar. Por defecto su tamaño debe ser de aproximadamente 400 MB. Su tamaño puede crecer.
+
+* **system** Es el table espace fundamental.
+
+* **users** Es el table espace para usuarios, para buenas prácticas todos los datos se deben guardar en un tablespace users. Se considera como default.
+
+* **temporal** Como su nombre lo indica sirve para guardar datos temporales
+
+* **undo** Hace referencia a deshacer. Es decir almancena la versión anterior de la base de datos, esto permite poder hacer rollback.
 
 **rollback** hace un retroceso a un commit anterior.  El manejador en algún lugar tiene que guardar la versión viejita para poder implementarlo en caso de ser necesaria, esta versión viejita se guarda en el `tablespace undo`, sólo lo guarda de forma temporal y no permanente. 
 
@@ -65,17 +79,39 @@ La ventaja de hacerlo en linea de comandos es aprender todo el proceso.
 Automatizamos la creación de una base de datos sin tener que depender de una interfaz gráfica. (Esto nos permite ahorrar recursos).
 En el ambito laboral el ambiente gráfico puede no existir, de hecho en casi todos es mediante una linea de comandos porque se hace para eficientar la base de datos y el desempeño del sistema.
 
-Un archivo de parametros, como su nombre lo dice se encarga de indicar parametros necesarios.
+* `ORACLE_SID` le indica a que instancia se quiere conectar.
 
-PFILE --> Parameter File. Es un archivo de texto editable.
-SFILE --> Server file. Es un archivo binario.
+### Métodos de autenticación:
+Para poder realizar la creación de una base de datos, es necesario estar autenticado con privilegios de administración. Se pueden seleccionar alguno de los siguientes métodos:
+
+*  Autenticación por sistema operativo. En este caso, el usuario que va a realizar la creación de la BD debe pertenecer a alguno de los grupos del s.o. mencionados anteriormente.
+
+*  Autenticación a través de archivo de passwords. El archivo debe crearse antes de iniciar con la creación de la base de datos.
+
+### Crear un archivo de parametros
+
+Un archivo de parametros, como su nombre lo dice se encarga de indicar parametros necesarios que indicarán lo necesario para utilizar la instancia.
+Existen 2 tipos de archivos de parametos:
+
+* **PFILE** --> Parameter File. Es un archivo de texto editable.
+* **SFILE** --> Server file. Es un archivo binario.
 
 Es mejor usar un SFILE porque permite modificarlo mediante está en ejecución la BD. El de texto nos permite hacer respaldos de un SFILE. 
 La propia base genera el `SFILE`.
 
+Cuando una instancia no levanta podemos modificar el de texto `PFILE`, levantarla y mediate ello poder crear el `SFILE`
+
+Ya que la instancia exista entonces puede existir el binario.
+
 ### Creando un PFILE
 
-Se crea de la siguiente manera: `db_name=ymmbda2` en el interior del archivo y se guarda en `$ORACLE_HOME/dbs` 
+Se crea de una manera muy sencilla y es de la siguiente manera: **`db_name=ymmbda2`**, con esto habremos creado un archivo de parametros de texto completamente valido y se guarda en `$ORACLE_HOME/dbs` 
+
+Para verificar su creación podemos ver la nomenclatura:
+
+* **init** los que comienzan con init, son archivos de texto. El nombre del archivo de parámetros debe tener el siguiente formado `init<ORACLE_SID>.ora`
+* **spfile** Son los archivos binarios.
+* OJO: **init.ora** es simplemente una plantilla que indica como crear un archivo de parametros.
 
 Cuando se crea una base de datos debemos crear un `PFILE` con los parámetros necesarios para su funcionamiento.
 
@@ -83,13 +119,62 @@ Cuando se crea una base de datos debemos crear un `PFILE` con los parámetros ne
 
 La plantilla PFILE sólo nos muestra un esquema con los parámetros necesarios para el inicio de la instancia.
 
-`memory_target` la memoria total que usará nuestra instancia.
+**Nota:**Cómo minimo siempre debemos crear `db_name`
+
+* `db_name`.Debe corresponder con el valor especificado en la instrucción create database así como con el valor de la variable ORACLE_SID. Es el unico parametro requerido pero se recomienda poner los siguientes 2.
+
+* `memory_target` la memoria total que usará nuestra instancia.
 
 Nuestras instancias tienen hasta 1GB en la memoria.
 
-`control_Files` aquí se guardan configuraciones y validaciones para que la base funciona correctamente. Si se pierde el archivo de control la base se cae y no puede iniciar. De este tipo de archivos hay que hacer un multiplexeo, para que evite que se caiga el archivo.
+* `control_Files` aquí se guardan configuraciones y validaciones para que la base funciona correctamente. Si se pierde el archivo de control la base se cae y no puede iniciar. De este tipo de archivos hay que hacer un multiplexeo, para que evite que se caiga el archivo.
+
+Aquí vemos el multiplexeo:
+```
+control_files=(/u01/app/oracle/oradata/JRCBDA2/control01.ctl,
+/u02/app/oracle/oradata/JRCBDA2/control02.ctl)
+```
 
 Por default al crear una BD se crean **2 archivos de control** y **3 redolog**
+
+Para listar redologs y archivos de control hay que hacer lo siguiente:
+
+```
+~> cd ymmbda1 /*cd ORACLE_SID*/
+~> ll
+```
+
+
+* Para ver los memory target usamos los siguientes comandos:
+
+```
+> su -l oracle
+> oracle
+> cd $ORACLE_BASE
+> pwd
+> ls
+> cd oradata/
+> ls
+> cd YMMBDA1
+> ls
+
+Aquí encontraremos los archivos de control:
+control01.ctl
+control02.ctl
+```
+
+## Iniciar una instancia
+Para iniciar una instancia se usa el comando `startup`, si se pone el comando sin ninguna otra instrucción tendrá 3 posibilidades:
+
+1. Si no le ponemos ningun parámetro lo que harára el comando es buscar automáticamente en primera instancia el **archivo binario**. 
+2. Si no encuentra el archivo binario lo que hará es buscar un **archivo de texto** un `init<ORACLE_SID>.ora`.
+3. Si tampoco funciona el segundo caso entonces se deberá especificar manualmente el
+nombre y ubicación del archivo al momento de levantar la instancia.
+
+Y otra manera de hacerlo es manual mediante el siguiente comando:
+**`startup pfile=”/myfiles/myparamfile.ora”`** donde puede ser cualquier ruta y cualquier nombre siempre se le indique el archivo PFile, se utiliza para levantar una instancia mediante un archivo de parametros que no corresponde con los parametros por default.
+
+
 
 ## Puntos de montaje
 
@@ -104,7 +189,9 @@ Se recomienda usar Shell para crear si no existe y eliminarlo si existe ya.
 
 * `losetup -fP disk2.img` -f ubica y localiza el primer loop device disponible. La opción `-P` le dice al SO que revise bien cuantos dispositivos de almacenamiento tenemos.
 
-* `losetup -a` Cuando lo ejecutemos el SO reconocerá que tenemos 2 nuevos dispositivos.
+* `losetup -a`: Mostrará todos los dispositivos que tenemos. Cuando lo ejecutemos el SO reconocerá que tenemos 2 nuevos dispositivos.
+
+* Para dar formato a un dispositivo con `ext4` usamos: `mkfs.ext4 nombreArchivoBinario.img`
 
 * El SO reconoce los dispositivos pero aun no reconoce el formato que tienen, es por ello que ejecutamos el siguiente comando que le dará el formato de `ext4`: `mkfs.ext4 disk2.img` 
 
@@ -112,9 +199,9 @@ Se recomienda usar Shell para crear si no existe y eliminarlo si existe ya.
 
 * Para hacer el punto de montaje: `mount -o loop /dev/loop0 /u02`
 
-Despues de ejecutar el comando anterior podremos guardar archivos dentro de el. El comando Mount funciona pero al apagar la maquina los loopdevices se pierden, entonces cada que iniciamos la maquina deberiamos deberiamos repetir el proceso, entonces deberiamos hacer este siempre que iniciamos la maquina. (Este comando podría omitirse, porque no va en el Script)
+Despues de ejecutar el comando anterior podremos guardar archivos dentro de el. El comando Mount funciona, pero al apagar la maquina los loopdevices se pierden, entonces cada que iniciamos la maquina deberiamos deberiamos repetir el proceso, entonces deberiamos hacer este siempre que iniciamos la maquina. (Este comando podría omitirse, porque no va en el Script)
 
-Para evitar el anterior usamos el archivo `fstab` es una tabla de mapeo, nos permite montar de forma automatica al iniciar el sistema. <p style="color: red">Antes de modificar este archivo debemos asegurarnos que ya hayamos ejecutado el script anterior a modo que nuestros dispositivos ya existan.</p>
+Para evitar el anterior usamos el archivo `fstab` (filesistemtab) es una tabla de mapeo, nos permite montar de forma automatica al iniciar el sistema. <p style="color: red">Antes de modificar este archivo debemos asegurarnos que ya hayamos ejecutado el script anterior a modo que nuestros dispositivos ya existan.</p>
 
 Como usuario root modificar el archivo `/etc/fstab` y poner las siguientes líneas:
 
