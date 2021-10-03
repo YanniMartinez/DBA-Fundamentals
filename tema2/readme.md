@@ -235,6 +235,8 @@ echo "db_name=ymmbda2" >> "${archivoParam}" #Debe ser doble > para que no sobree
 #Aquí iria el parámetro de memory_target
 ```
 
+* **Comprobando un script y su ejecución** Recordemos también que para leer el resulado de ejecutar un script podemos usar el: `echo $?` este nos mostrará el valor del comando, si es **0** fue correcto.
+
 Ejemplo apuntando a otra ruta:
 
 <div align="center"><img src="media/8_Ejemplo.png"></div>
@@ -266,10 +268,14 @@ Recordemos que el OracleSID debe estár apuntando a la base 2. Los archivos de p
 
 * `startup nomount` A partir del valor de OracleSID buscará el archivo de parametros, lo leerá e iniciará sólo con los parámetros indicados.
 
+### Crea el archivo de parametros binarios mediante el de texto
+
 * `create spfile from pfile;` Leerá el archivo de texto creado con nuestros 3 parametros y a partir de el iniciará el PFILE.
 
 La instrucción toma como entrada el archivo de parámetros de texto (PFILE) y genera un archivo binario
 Server Parameter File (SPFILE) en la ubicación por default. En caso que alguno o ambos archivos no se encuentren en las ubicaciones por default, se especifican las rutas absolutas:
+
+* Para ejecutar un comando de sistema operativo en un archivo SQL es necesario poner el comando, pero debe iniciar con **!**, por ejemplo: `!ls ORACLE_HOME`
 
 ```
 create spfile='/u01/oracle/dbs/test_spfile.ora'
@@ -279,6 +285,8 @@ from pfile='/u01/oracle/dbs/test_init.ora';
 * Para verificar que se creó correctamente el SPFILE ejecutamos el siguiente comando: `!ls $ORACLE_HOME/dbs/spfile<iniciales>bda2.ora`
 
 <div align="center"><img src="media/9_ConectarComoSYSDBA.png"></div>
+
+Para conectar como **Sys** usamos el comando `connect sys/hola1234* as sysdba`
 
 ### Creando BD desde Consola
 
