@@ -324,6 +324,9 @@ Hay que tener cuidado con verificar que ya existen directorios antes de ejecutar
 
 ### Script 02
 
+#### Cambio recursivo de permisos:
+* `chmod -R 750 *` Sirve para cambiar los permisos de una carpeta y todo lo que está contenida en ella, por eso se dice que el `-r` es de recursiva.
+
 * `-r` significa que es recursivo, por ejemplo, si lo ponemos es posible que se modifiquen todas sus demás carpetas.
 * En este archivo se deberán tener `750` en cuanto a permisos.
 
@@ -370,3 +373,6 @@ Cuando ocurre un error en nuestro sistema:
 Se debe levantar con el Pfile, no con el binario porque está dañado, esto si puede pasar porque es posible levantar la instancia con el de texto.
 
 <div align="center"><img src="media/19_SolProblema.png"></div>
+
+* `show parameter memory_target` muestra el objetivo a la memoria.
+* `show parameter control_file` muestra el valor de los archivos de control.
