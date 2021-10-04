@@ -376,3 +376,129 @@ Se debe levantar con el Pfile, no con el binario porque está dañado, esto si p
 
 * `show parameter memory_target` muestra el objetivo a la memoria.
 * `show parameter control_file` muestra el valor de los archivos de control.
+
+### Sesión
+Una sesión en terminos sencillos es una área de memoría asignada al usuario, durante la autenticación con configuración de parámetros interesantes.
+Una sesión tiene varios niveles:
+1. Nivel de sesión: Area de memoria mientras se autentica.
+2. Nivel de instancia: Podemos tener parámetros a nivel de instancias.
+3. Nivel de SPFILE
+
+<div align="center"><img src="media/19_nivelesSesiones.png"></div>
+
+### Parámetros
+
+Existen alrededor de 30 parámetros considerados como básicos, los cuales deben ser identificados y
+estar familiarizados con ellos.
+
+|Consultar parámetros|Uso|
+|---|---|
+|`show parameters`|Muestra el valor de un parámetro empleado en la instancia actual.|
+|`show spparameters`|Muestra el valor de un parámetro del SPFILE. El valor de un parámetro puede ser ajustado en memoria.|
+
+
+* **El unico parámetro sin valor por default** es el `db_name` dado que siempre hay que especificarlo. Todos los demás parámetros si tienen uno por default.
+
+Se recomienda usar los parámetros con sus valores por default conforme vaya creciendo la base de datos irlos modificando.
+
+### Modificación de parámetros
+* **Parámetros dinámicos:** Los cambios toman efecto de forma inmediata sin requerir reinicio.
+
+* **Parámetros estáticos:** Los cambios no toman efecto en la instancia de forma inmediata. Se deben escribir al SPFILE y requieren reinicio.
+¿En donde debería almacenarse el dato de un parametro si es estático? Se debe guardar en el SPFILE para que aparezca cuando inicie la instancia, si no se guarda en el SPFILE entonces se puede perder.
+
+* Para realizar la modificación de un parámetro se emplean las siguientes instrucciones
+
+```
+Sirve para modificar a cualquier nivel:
+~> alter system set <parametro>=<valor> [scope={spfile|memory|both}]
+
+Usariamos "spfile" para guardarlo en el spfile. Usariamos "memory" cuando sea a nivel se sesión y "both" para ambos, este ultimo se aplica de forma inmediata en la instancia y a parte en el spfile.
+
+Sirve para modificar sólo a niver de sesión:
+~> alter session set <parametro>=<valor>
+```
+
+### modificando parametro de intentos de login
+
+Para modificar el número de intentos para autenticar podemos usar:
+`alter system set sec_max_failed_login_attempts=3 comment='reduce from 10 for tighter security.' scope=spfile;`
+En el ejemplo se cambia a 3 el número máximo de intentos fallidos al hacer login antes de cortar la conexión.
+
+* Para regresar al valor por default de un parámetro se emplea la instrucción alter system reset
+* Dependiendo de la naturaleza del parámetro se emplea alguna de las 2 sentencias anteriores, o inclusive ambas.
+* La vista del diccionario de datos v$parameter define los siguientes atributos cuyos valores permiten conocer la forma en la que se puede actualizar el valor de un parámetro
+
+|Atributo|Función|
+|---|---|
+|`isses_modifiable`|Indica si el parámetro puede ser modificado con la instrucción alter session (true/false)|
+|`issys_modifiable`|Indica si el parámetro puede ser modificado con la instrucción alter system y el momento en el que el cambio toma efecto. La columna puede tener los siguientes valores:|
+
+<div align="center"><img src="media/21_tiposParametros.png"></div>
+
+* Dinámicos: Inmediate y Deferred.
+* Estáticos: False.
+
+<div align="center"><img src="media/22_format.png"></div>
+
+<div align="center"><img src="media/23_listaArchivoscontrol.png"></div>
+
+<div align="center"><img src="media/23_listaArchivoscontrolBD2.png"></div>
+
+<div align="center"><img src="media/24_nls.png"></div>
+
+Nos muestra que tiene el valor por default, que es modificable a nivel de sesión y que es estático, respectivamente a sus columnas.
+
+<div align="center"><img src="media/25_cambioFormatoHora.png"></div>
+
+Si aquí ponen `Scope` no aplica.
+
+<div align="center"><img src="media/26_param.png"></div>
+
+Notamos que si tuvo cambios, sin embargo, en el sistem parameter no sucede así:
+
+<div align="center"><img src="media/27_systemParameter.png"></div>
+
+Este al ser nivel de la sesión veremos que tiene diferentes valores entre un nivel y otro. Entre instancia y sesión.
+
+<div align="center"><img src="media/28_paramsSP.png"></div>
+
+<div align="center"><img src="media/29_valorSPFILE.png"></div>
+
+Notamos que el valor está vacio, es decir, no se guardó de forma permanente, estos son claros ejemplos sobre diferencias entre niveles.
+
+#### Proceses
+
+<div align="center"><img src="media/30_proceses.png"></div>
+
+Veremos que este `alter system set processes=300` no es valido, porque al no especificar el **scope** lo toma como **both** es decir, lo pone tanto en se
+
+<div align="center"><img src="media/31_scope.png"></div>
+
+En este caso la unica opción que se tiene es especificarle `scope=spfile`
+
+### Java Jit Enabled
+
+Java just in time es prácticamente código binario nativo, casi casi a nivel ensamblador y genera que todo el código sea eficiente.
+
+<div align="center"><img src="media/31_scope.png"></div>
+
+En este caso si podemos hacerlo porque tenemos en `true` a nivel sesión.
+
+<div align="center"><img src="media/32_nivelSesion.png"></div>
+
+* Alternativa de no usar **vistas** es usar **show**
+
+<div align="center"><img src="media/33_show.png"></div>
+
+A nivel sesión cualquier usuario puede hacer modificaciones, pero a nivel instancia y demás es System.
+
+<div align="center"><img src="media/34_diferentesSesiones.png"></div>
+
+* Deshabilitar compilador a nivel instancia:
+
+<div align="center"><img src="media/35_compilador.png"></div>
+
+Aquí le estamos especificando el **scope=memory** porque sólo queremos modificar el valor a nivel instancia. Recordemos que el both afecta la instancia y la sesión.
+
+### Fin tema 2
